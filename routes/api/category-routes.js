@@ -8,59 +8,56 @@ router.get('/', async (req, res) => {
     const categories = await Category.findAll({
       include: [{ model: Product }],
     });
-    res.json(categories);
+    res.status(200).json(categories);
   } catch (err) {
-    console.error(err);
     res.status(500).json(err);
-  };
+  }
 });
 
 router.get('/:id', async (req, res) => {
   try {
-    const category = await Category.findByPk(req.params.id, {
-      include: [{ model: Product }],
+    const productId = await Product.findByPk(req.params.id, {
+      include: [{ model: Category }],
     });
 
-    if (!category) {
-      res.status(404).json({ message: 'No category found with this id' });
+    if (!productId) {
+      res.status(404).json({ message: 'No category with this id!' });
       return;
     }
 
-    res.json(category);
+    res.status(200).json(productId);
   } catch (err) {
-    console.error(err);
     res.status(500).json(err);
-  };
+  }
 });
 
 router.post('/', async (req, res) => {
   try {
-    const newCategory = await Category.create(req.body);
-    res.json(newCategory);
+    const locationData = await Category.create({
+      category_name: req.body.category_name,
+    });
+    res.status(200).json(locationData);
   } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  };
+    res.status(400).json(err);
+  }
 });
 
 router.put('/:id', async (req, res) => {
   try {
-    const updatedCategory = await Category.update(req.body, {
-      where: {
-        id: req.params.id,
+    const updatedCategory = await Category.update(
+      {
+        category_name: req.body.category_name,
       },
-    });
-
-    if (!updatedCategory[0]) {
-      res.status(404).json({ message: 'No category found with this id' });
-      return;
-    }
-
-    res.json(updatedCategory);
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+    res.status(200).json(updatedCategory);
   } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  };
+    res.status(400).json(err);
+  }
 });
 
 router.delete('/:id', async (req, res) => {
@@ -70,17 +67,10 @@ router.delete('/:id', async (req, res) => {
         id: req.params.id,
       },
     });
-
-    if (!deletedCategory) {
-      res.status(404).json({ message: 'No category found with this id' });
-      return;
-    }
-
-    res.json(deletedCategory);
+    res.status(200).json(deletedCategory);
   } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  };
+    res.status(400).json(err);
+  }
 });
 
 module.exports = router;
